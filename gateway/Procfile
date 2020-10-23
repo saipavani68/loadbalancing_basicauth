@@ -1,0 +1,4 @@
+# foreman start -m gateway=1,sandman=3,datasette=3
+gateway: FLASK_APP=gateway flask run -p $PORT
+app: FLASK_APP=app flask run -p $PORT
+timelines: FLASK_APP=timelines flask run -p $PORT
