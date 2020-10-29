@@ -8,29 +8,33 @@
 
 import sys
 
-import flask
+import flask, itertools
 import requests
+import logging
 
 app = flask.Flask(__name__)
 app.config.from_envvar('APP_CONFIG')
-
-upstream = app.config['UPSTREAM']
-
+nodesList = app.config['NODES']
+nodes = itertools.cycle(nodesList)
 
 @app.errorhandler(404)
 def route_page(err):
-
+    # Each time you can see the log that the curr_node is changed from the list of nodes
+    curr_node = next(nodes)
+    app.logger.info(curr_node)
     try:
         response = requests.request(
             flask.request.method,
-            upstream + flask.request.full_path,
+            curr_node + '/',
             data=flask.request.get_data(),
             headers=flask.request.headers,
             cookies=flask.request.cookies,
             stream=True,
         )
     except requests.exceptions.RequestException as e:
-        app.log_exception(sys.exc_info())
+        #removing node or server in case of connection refused error or HTTP status code in the 500 range
+        if curr_node in nodesList:
+            nodesList.remove(curr_node)
         return flask.json.jsonify({
             'method': e.request.method,
             'url': e.request.url,
