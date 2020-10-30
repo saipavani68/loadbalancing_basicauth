@@ -7,19 +7,41 @@
 #
 
 import sys
-
 import flask, itertools
+from flask import request
 import requests
 import logging
+from flask_basicauth import BasicAuth
+
 
 app = flask.Flask(__name__)
+
+basic_auth = BasicAuth(app)
+
 app.config.from_envvar('APP_CONFIG')
 nodesList = app.config['NODES']
 nodes = itertools.cycle(nodesList)
 
+def check_credentials(username, password):
+    app.logger.info(username)
+
+def require_basic_auth():
+    auth = request.authorization
+    if not auth:
+        return flask.Response(
+            status=401,
+            headers={'WWW-Authenticate': 'Basic'})
+    else:
+        return (
+            auth and auth.type == 'basic' and
+            check_credentials(auth.username, auth.password)
+        )
+    
 @app.errorhandler(404)
 def route_page(err):
     # Each time you can see the log that the curr_node is changed from the list of nodes
+    final = require_basic_auth()
+    app.logger.info(final)
     curr_node = next(nodes)
     app.logger.info(curr_node)
     try:
