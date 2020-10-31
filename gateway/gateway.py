@@ -12,6 +12,7 @@ from flask import request
 import requests
 import logging
 from flask_basicauth import BasicAuth
+from functools import wraps
 
 
 app = flask.Flask(__name__)
@@ -25,23 +26,26 @@ nodes = itertools.cycle(nodesList)
 def check_credentials(username, password):
     app.logger.info(username)
 
-def require_basic_auth():
-    auth = request.authorization
-    if not auth:
-        return flask.Response(
-            status=401,
-            headers={'WWW-Authenticate': 'Basic'})
-    else:
-        return (
-            auth and auth.type == 'basic' and
-            check_credentials(auth.username, auth.password)
-        )
-    
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return flask.Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_basic_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_credentials(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
 @app.errorhandler(404)
+@requires_basic_auth
 def route_page(err):
     # Each time you can see the log that the curr_node is changed from the list of nodes
-    final = require_basic_auth()
-    app.logger.info(final)
     curr_node = next(nodes)
     app.logger.info(curr_node)
     try:
