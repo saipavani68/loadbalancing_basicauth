@@ -47,6 +47,7 @@ def requires_basic_auth(f):
     return decorated
 
 @app.errorhandler(404)
+@requires_basic_auth
 def route_page(err):
     # Each time you can see the log that the curr_node is changed from the list of nodes
     app.logger.info(flask.request.full_path)
