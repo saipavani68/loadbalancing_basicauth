@@ -73,19 +73,24 @@ def createUser():
 #Authenticating user
 
 @app.route('/login', methods=['POST'])
-def authenticateUser():
+def authenticateUser(username, password):
     query_parameters = request.form
     
-    username = query_parameters.get('username')
-    password = query_parameters.get('password')
+    if not username:
+        username = query_parameters.get('username')
     
-    db= get_db()
+    if not password:
+        password = query_parameters.get('password')
+
     result = query_db('SELECT password FROM users WHERE username = ?', [username])
-    
-    hashed_password = result[0].get('password')
-    validate_user = check_password_hash(hashed_password, password)    #checking if user entered password is equal to the hashed password in db
-    if validate_user:
-        return jsonify(validate_user)
+    app.logger.info(username)
+    app.logger.info(password)
+    if result:
+        hashed_password = result[0].get('password')
+        validate_user = check_password_hash(hashed_password, password)    #checking if user entered password is equal to the hashed password in db
+        if validate_user:
+            app.logger.info('valid user!!!!')
+            return jsonify(validate_user)
     else:
         return jsonify({"statusCode": 401, "error": "Unauthorized", "message": "Login failed: Invalid username or password" })
 

@@ -10,8 +10,10 @@ import sys
 import flask, itertools
 from flask import request
 import requests
+from flask import jsonify
 import logging
 from flask_basicauth import BasicAuth
+from app import authenticateUser
 from functools import wraps
 
 
@@ -30,7 +32,9 @@ timelinesNodes = itertools.cycle(timelinesNodesList)
 timelinesApiResources = timelines['endpoints']
 
 def check_credentials(username, password):
-    app.logger.info(username)
+    response = authenticateUser(username, password)
+    app.logger.info(response)
+    return response.get_json()
 
 def authenticate():
     """Sends a 401 response that enables basic auth"""
@@ -51,12 +55,14 @@ def requires_basic_auth(f):
 @app.errorhandler(404)
 @requires_basic_auth
 def route_page(err):
-    # Each time you can see the log that the curr_node is changed from the list of nodes
+    
     app.logger.info(flask.request.full_path)
     if flask.request.full_path in userApiResources:
         curr_node = next(userNodes)
     else:
         curr_node = next(timelinesNodes)
+    # Each time you can see the log that the curr_node is changed from the list of nodes
+    app.logger.info(curr_node)
     try:
         response = requests.request(
             flask.request.method,
