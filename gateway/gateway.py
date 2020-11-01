@@ -47,7 +47,6 @@ def requires_basic_auth(f):
     return decorated
 
 @app.errorhandler(404)
-@requires_basic_auth
 def route_page(err):
     # Each time you can see the log that the curr_node is changed from the list of nodes
     app.logger.info(flask.request.full_path)
@@ -66,8 +65,10 @@ def route_page(err):
         )
     except requests.exceptions.RequestException as e:
         #removing node or server in case of connection refused error or HTTP status code in the 500 range
-        #if curr_node in nodesList:
-            #nodesList.remove(curr_node)
+        if curr_node in userNodesList:
+            userNodesList.remove(curr_node)
+        else:
+            timelinesNodesList.remove(curr_node)
         return flask.json.jsonify({
             'method': e.request.method,
             'url': e.request.url,
