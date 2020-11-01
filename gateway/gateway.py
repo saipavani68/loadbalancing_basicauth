@@ -51,7 +51,7 @@ def route_page(err):
     try:
         response = requests.request(
             flask.request.method,
-            curr_node + '/',
+            curr_node + flask.request.full_path,
             data=flask.request.get_data(),
             headers=flask.request.headers,
             cookies=flask.request.cookies,
