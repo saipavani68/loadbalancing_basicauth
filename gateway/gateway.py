@@ -20,12 +20,14 @@ app = flask.Flask(__name__)
 basic_auth = BasicAuth(app)
 
 app.config.from_envvar('APP_CONFIG')
-userNodesList = app.config['USER_NODES']
+users = app.config['USERS']
+userNodesList = users['nodes']
 userNodes = itertools.cycle(userNodesList)
-userApiResources = app.config['USER_API_RESOURCES']
-timelinesNodesList = app.config['TIMELINES_NODES']
+userApiResources = users['endpoints']
+timelines = app.config['TIMELINES']
+timelinesNodesList = timelines['nodes']
 timelinesNodes = itertools.cycle(timelinesNodesList)
-timelinesApiResources = app.config['TIMELINES_API_RESOURCES']
+timelinesApiResources = timelines['endpoints']
 
 def check_credentials(username, password):
     app.logger.info(username)
