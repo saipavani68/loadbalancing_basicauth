@@ -18,7 +18,7 @@ The following are the steps to run the project:
     
     > sudo apt install --yes ruby-foreman httpie
 
-5. Then cd into the project4 folder
+5. Then cd into the gateway folder
     Run the following commands:
     > flask init
     
