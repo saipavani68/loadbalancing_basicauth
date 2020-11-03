@@ -1,5 +1,5 @@
 # Project4 - CPSC 449 Web Back-End Engineering - Fall 2020
-
+Guided by Professor: Kenytt Avery @ProfAvery
 # Project description: 
 In this Project an API Gateway is introduced to mediate between users and the microservices i.e, timelines and users. 
 The gateway listens on port 5000 and forward requests to each instance of the correct microservice. We use the round-robin policy for the same. If a request fails with Connection refused or an HTTP Status code in the 500 range,the server is removed from the rotation. Also, Flask Basic-Auth is implemented and the user credentials are validated with the authenticateUser(username, password) API.
